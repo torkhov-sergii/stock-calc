@@ -2,13 +2,20 @@
     "private": true,
     "scripts": {
         "dev": "vite",
+        "watch": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --config=node_modules/laravel-mix/setup/webpack.config.js",
         "build": "vite build"
     },
     "devDependencies": {
         "axios": "^1.1.2",
+        "laravel-mix": "^6.0.49",
         "laravel-vite-plugin": "^0.7.2",
         "lodash": "^4.17.19",
         "postcss": "^8.1.14",
+        "sass-loader": "^12.1.0",
         "vite": "^4.0.0"
+    },
+    "dependencies": {
+        "cross-env": "^7.0.3",
+        "import-glob-loader": "^1.1.0"
     }
 }

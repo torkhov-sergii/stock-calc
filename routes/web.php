@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use App\Http\Controllers\StockController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,4 +17,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::group([
+    'prefix' => 'stock',
+], function () {
+    Route::get('show/{symbol}', [StockController::class, 'show']);
+    Route::get('import/{symbol?}', [StockController::class, 'import']);
 });

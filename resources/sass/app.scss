@@ -1,0 +1,27 @@
+@import "core/normalize";
+
+body {
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+}
+
+table {
+    th {
+        background: #ddd;
+        border: 1px solid #999;
+        padding: 5px;
+    }
+
+    td {
+        border: 1px solid #999;
+        padding: 3px 5px;
+
+        &.green {
+            background-color: rgba(0, 255, 0, 0.2);
+        }
+
+        &.red {
+            background-color: rgba(255, 0, 0, 0.2);
+        }
+    }
+}
