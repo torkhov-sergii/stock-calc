@@ -14,7 +14,15 @@
 <div class="wrapper @isset($formVersion)v{{ $formVersion }} is-{{$formVersionName}}@endisset" id="top">
     @include('layouts.partials.header')
 
-    @yield('content')
+    <div class="container">
+        @if($errors->any())
+            <h4>{{$errors->first()}}</h4>
+        @endif
+
+        <div class="content">
+            @yield('content')
+        </div>
+    </div>
 
     @section('footer')
         @include('layouts.partials.footer')

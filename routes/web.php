@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\PeriodController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,13 @@ Route::get('/', function () {
 Route::group([
     'prefix' => 'stock',
 ], function () {
+    Route::get('all/{symbol}', [StockController::class, 'all']);
     Route::get('show/{symbol}', [StockController::class, 'show']);
     Route::get('import/{symbol?}', [StockController::class, 'import']);
+});
+
+Route::group([
+    'prefix' => 'period',
+], function () {
+    Route::get('generate', [PeriodController::class, 'generate']);
 });

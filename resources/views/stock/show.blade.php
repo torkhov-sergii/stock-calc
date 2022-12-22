@@ -4,7 +4,9 @@
 
 @section('content')
 
+    <h3>Period: ({{ $periodId }}) {{ $from }} - {{ $to }}</h3>
     <h3>Initial amount: {{ $initialAmount }}</h3>
+    <h3>Final amount: {{ $finalAmount }}</h3>
 
     <table>
         <tr>
@@ -31,7 +33,5 @@
             </tr>
         @endforeach
     </table>
-
-    <h3>Final amount: {{ $finalAmount }}</h3>
 
 @endsection
