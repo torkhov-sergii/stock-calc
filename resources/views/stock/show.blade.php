@@ -4,9 +4,9 @@
 
 @section('content')
 
-    <h3>Period: ({{ $periodId }}) {{ $from }} - {{ $to }}</h3>
-    <h3>Initial amount: {{ $initialAmount }}</h3>
-    <h3>Final amount: {{ $finalAmount }}</h3>
+    <h3>Detailed <a href="/stock/all/{{ $symbol }}">{{ $symbol }}</a> by Period: ({{ $periodId }}) {{ $from }} - {{ $to }}</h3>
+{{--    <h3>Initial amount: {{ $initialAmount }}</h3>--}}
+    <h3>Result: {{ ceil($finalAmount) }}</h3>
 
     <table>
         <tr>
@@ -29,7 +29,7 @@
                         {{ $day['stockPortfolio']['operation'] .' '. $day['stockPortfolio']['price']  }}
                     @endif
                 </td>
-                <td>{{ $day['amount'] }}</td>
+                <td>{{ ceil($day['amount']) }}</td>
             </tr>
         @endforeach
     </table>

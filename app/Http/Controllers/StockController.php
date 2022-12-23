@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\ExampleStock;
+use App\Helpers\Helpers;
 use App\Helpers\TableHelper;
 use App\Models\Period;
 use App\Models\Stock;
@@ -83,6 +84,7 @@ class StockController extends Controller
 
         return view('stock.show', [
             'periodId' => $periodId,
+            'symbol' => $symbol,
             'from' => $from,
             'to' => $to,
             'initialAmount' => $this->initialAmount,
@@ -116,19 +118,35 @@ class StockController extends Controller
 
             $timeSeries = $this->stockCalc($symbol, $from, $to);
 
+            $stockPriceFrom = $timeSeries->first()['close'];
+            $stockPriceTo = $timeSeries->last()['close'];
+
+            $holdAmount = $this->initialAmount / $stockPriceFrom * $stockPriceTo;
+
             $periodResults[] = [
                 'id' => $period->id,
                 'from' => $from,
                 'to' => $to,
-                'stockPriceFrom' => $timeSeries->first()['close'],
-                'stockPriceTo' => $timeSeries->last()['close'],
+                'stockPriceFrom' => $stockPriceFrom,
+                'stockPriceTo' => $stockPriceTo,
                 'initialAmount' => $this->initialAmount,
                 'finalAmount' => $this->finalAmount,
+                'holdAmount' => $holdAmount,
             ];
         }
 
+        $averageHoldAmount = Helpers::averageArrayKey($periodResults,  'holdAmount');
+        $averageFinalAmount = Helpers::averageArrayKey($periodResults,  'finalAmount');
+
+//        foreach ($periodResults as $period) {
+//            $period['holdAmount']
+//        }
+
         return view('stock.all', [
+            'symbol' => $symbol,
             'periodResults' => $periodResults,
+            'averageFinalAmount' => $averageFinalAmount,
+            'averageHoldAmount' => $averageHoldAmount,
         ]);
     }
 
