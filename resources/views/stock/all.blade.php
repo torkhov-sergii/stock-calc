@@ -11,11 +11,13 @@
             <th>ID</th>
             <th>Period From</th>
             <th>Period To</th>
-            <th>Stock price From</th>
-            <th>Stock price To</th>
+            <th>Period Years</th>
+            <th>Stock Price From</th>
+            <th>Stock Price To</th>
 {{--            <th>Initial amount</th>--}}
-            <th>Hold amount</th>
-            <th>Result</th>
+            <th>Change Per Year, %</th>
+            <th>Hold, $</th>
+            <th>Active, $</th>
         </tr>
 
         @foreach($periodResults as $period)
@@ -23,15 +25,19 @@
                 <td><a href="/stock/show/TSLA?period={{ $period['id'] }}">{{ $period['id'] }}</a></td>
                 <td>{{ $period['from'] }}</td>
                 <td>{{ $period['to'] }}</td>
+                <td>{{ round($period['periodDays'] / 365, 1) }}</td>
                 <td>{{ $period['stockPriceFrom'] }}</td>
                 <td>{{ $period['stockPriceTo'] }}</td>
 {{--                <td>{{ $period['initialAmount'] }}</td>--}}
-                <td>{{ ceil($period['holdAmount']) }}</td>
-                <td>{{ ceil($period['finalAmount']) }}</td>
+                <td>{{ ($period['changePerYear']) }}</td>
+                <td class="{{ ($period['holdAmount'] > $period['initialAmount']) ? 'green' : 'red' }}">{{ ceil($period['holdAmount']) }}</td>
+                <td class="{{ ($period['finalAmount'] > $period['initialAmount']) ? 'green' : 'red' }}">{{ ceil($period['finalAmount']) }}</td>
             </tr>
         @endforeach
 
         <tr>
+            <th></th>
+            <th></th>
             <th></th>
             <th></th>
             <th></th>

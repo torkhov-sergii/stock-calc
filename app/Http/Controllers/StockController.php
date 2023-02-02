@@ -7,6 +7,7 @@ use App\Helpers\Helpers;
 use App\Helpers\TableHelper;
 use App\Models\Period;
 use App\Models\Stock;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class StockController extends Controller
@@ -123,24 +124,26 @@ class StockController extends Controller
 
             $holdAmount = $this->initialAmount / $stockPriceFrom * $stockPriceTo;
 
+            $periodDays = Carbon::parse($from)->diffInDays($to);
+//            $holdInterestRate =  ceil(($holdAmount - ($this->initialAmount)) / 1000 * 100 / (1 / (365 / $periodDays)));
+            $changePerYear =  ceil((100 / $this->initialAmount * $holdAmount - 100) / (1 / (365 / $periodDays)));
+
             $periodResults[] = [
                 'id' => $period->id,
                 'from' => $from,
                 'to' => $to,
+                'periodDays' => $periodDays,
                 'stockPriceFrom' => $stockPriceFrom,
                 'stockPriceTo' => $stockPriceTo,
                 'initialAmount' => $this->initialAmount,
-                'finalAmount' => $this->finalAmount,
+                'changePerYear' => $changePerYear,
                 'holdAmount' => $holdAmount,
+                'finalAmount' => $this->finalAmount,
             ];
         }
 
         $averageHoldAmount = Helpers::averageArrayKey($periodResults,  'holdAmount');
         $averageFinalAmount = Helpers::averageArrayKey($periodResults,  'finalAmount');
-
-//        foreach ($periodResults as $period) {
-//            $period['holdAmount']
-//        }
 
         return view('stock.all', [
             'symbol' => $symbol,
