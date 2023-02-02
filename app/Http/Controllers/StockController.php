@@ -4,23 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Data\ExampleStock;
 use App\Helpers\Helpers;
+use App\Helpers\StrategyService;
 use App\Helpers\TableHelper;
 use App\Models\Period;
 use App\Models\Stock;
+use App\Services\StockService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class StockController extends Controller
 {
     private $apikey = 'RYBN57DFVBOWIE5B';
-    private $amount = 1000;
-    private $initialAmount;
-    private $finalAmount;
-    private $stockPortfolio = [];
+    protected StockService $stockService;
 
-    public function __construct()
+    public function __construct(StockService $stockService)
     {
-        $this->initialAmount = $this->amount;
+        $this->stockService = $stockService;
     }
 
     public function import(Request $request, $symbol = '')
@@ -81,15 +80,15 @@ class StockController extends Controller
             $to = $period->to;
         }
 
-        $timeSeries = $this->stockCalc($symbol, $from, $to);
+        $timeSeries = $this->stockService->stockCalc($symbol, $from, $to);
 
         return view('stock.show', [
             'periodId' => $periodId,
             'symbol' => $symbol,
             'from' => $from,
             'to' => $to,
-            'initialAmount' => $this->initialAmount,
-            'finalAmount' => $this->finalAmount,
+            'initialAmount' => $this->stockService->getInitalAmount(),
+            'finalAmount' => $this->stockService->getFinalAmount(),
             'timeSeries' => $timeSeries,
         ]);
     }
@@ -109,24 +108,22 @@ class StockController extends Controller
             ->get();
 
         foreach ($periods as $period) {
-            $this->amount = 1000;
-            $this->initialAmount = $this->amount;
+            $this->stockService->amount = 1000;
             $from = $period['from'];
             $to = $period['to'];
 
 //            $from = '2014-01-01';
 //            $to = '2014-01-10';
 
-            $timeSeries = $this->stockCalc($symbol, $from, $to);
+            $timeSeries = $this->stockService->stockCalc($symbol, $from, $to);
 
             $stockPriceFrom = $timeSeries->first()['close'];
             $stockPriceTo = $timeSeries->last()['close'];
 
-            $holdAmount = $this->initialAmount / $stockPriceFrom * $stockPriceTo;
+            $holdAmount = $this->stockService->getInitalAmount() / $stockPriceFrom * $stockPriceTo;
 
             $periodDays = Carbon::parse($from)->diffInDays($to);
-//            $holdInterestRate =  ceil(($holdAmount - ($this->initialAmount)) / 1000 * 100 / (1 / (365 / $periodDays)));
-            $changePerYear =  ceil((100 / $this->initialAmount * $holdAmount - 100) / (1 / (365 / $periodDays)));
+            $changePerYear =  ceil((100 / $this->stockService->getInitalAmount() * $holdAmount - 100) / (1 / (365 / $periodDays)));
 
             $periodResults[] = [
                 'id' => $period->id,
@@ -135,10 +132,10 @@ class StockController extends Controller
                 'periodDays' => $periodDays,
                 'stockPriceFrom' => $stockPriceFrom,
                 'stockPriceTo' => $stockPriceTo,
-                'initialAmount' => $this->initialAmount,
+                'initialAmount' => $this->stockService->getInitalAmount(),
                 'changePerYear' => $changePerYear,
                 'holdAmount' => $holdAmount,
-                'finalAmount' => $this->finalAmount,
+                'finalAmount' => $this->stockService->getFinalAmount(),
             ];
         }
 
@@ -153,91 +150,4 @@ class StockController extends Controller
         ]);
     }
 
-    private function buy($day): bool
-    {
-//        dump('buy');
-
-        $deal['operation'] = 'buy';
-        $deal['price'] = $day['close'];
-        $deal['count'] = $this->amount / $day['close'];
-        $this->stockPortfolio[] = $deal;
-
-        $this->amount = round($this->amount - $deal['count'] * $deal['price']);
-
-        //dump([$deal, $this->amount]);
-
-        return true;
-    }
-
-    private function sell($day): bool
-    {
-        $last = last($this->stockPortfolio);
-
-        if(isset($last['operation']) && $last['operation'] == 'buy') {
-//            dump('sell', $this->stockPortfolio);
-
-            $this->amount = abs(last($this->stockPortfolio)['count']) * $day['close'];
-
-            $deal['operation'] = 'sell';
-            $deal['price'] = $day['close'];
-            $deal['count'] = last($this->stockPortfolio)['count'];
-            $this->stockPortfolio[] = $deal;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private function stockCalc($symbol, $from, $to) {
-        $change = 0;
-
-        $timeSeries = Stock::query()
-            ->where('symbol', $symbol)
-            ->whereBetween('date', [$from, $to])
-            ->orderBy('date')
-            //->limit(20)
-            ->get();
-
-//        dd($timeSeries);
-
-        foreach ($timeSeries as $key => $day) {
-            if(isset($timeSeries[$key-1])) {
-                $prevDay = $timeSeries[$key-1];
-            }
-
-            // Today's price changes
-            if (isset($prevDay)) {
-                $change = $day['close'] - $prevDay['close'];
-
-                $timeSeries[$key]['change'] = $change;
-            }
-
-            // BUY
-            if ($change > 0 && $this->amount) {
-                if ($this->buy($day)) {
-                    $timeSeries[$key]['stockPortfolio'] = last($this->stockPortfolio);
-                }
-            }
-
-            // SELL
-            if ($change < 0) {
-                if ($this->sell($day)) {
-                    $timeSeries[$key]['stockPortfolio'] = last($this->stockPortfolio);
-                }
-            }
-
-            if ($this->amount) {
-                $timeSeries[$key]['amount'] = $this->amount;
-            } else {
-                $timeSeries[$key]['amount'] = last($this->stockPortfolio)['count'] * $day['close'];
-            }
-        }
-
-        $this->sell($day);
-
-        $this->finalAmount = $this->amount;
-
-        return $timeSeries;
-    }
 }

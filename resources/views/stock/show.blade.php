@@ -27,6 +27,7 @@
                 <td>
                     @if($day['stockPortfolio'])
                         {{ $day['stockPortfolio']['operation'] .' '. $day['stockPortfolio']['price']  }}
+                    {!! $day['stockPortfolio']['message'] !!}
                     @endif
                 </td>
                 <td>{{ ceil($day['amount']) }}</td>
