@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Stock;
+use App\Strategy\Strategy_1;
+use App\Strategy\Strategy_2;
 use Illuminate\Database\Eloquent\Collection;
 
 class StockService
@@ -82,9 +84,10 @@ class StockService
                 $timeSeries[$key]['change'] = $change;
             }
 
-            $strategyService = new StrategyService();
-//            $strategy = $strategyService->strategy1($timeSeries, $key, $day);
-            $strategy = $strategyService->strategy2($timeSeries, $key, $day);
+            $strategyClass = new Strategy_1();
+//            $strategyClass = new Strategy_2();
+
+            $strategy = $strategyClass->getAction($timeSeries, $key, $day);
 
             // BUY
             if ($strategy['action'] === 'buy' && $this->amount) {
