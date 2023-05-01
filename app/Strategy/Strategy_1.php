@@ -4,15 +4,15 @@ namespace App\Strategy;
 
 use Illuminate\Database\Eloquent\Collection;
 
-class Strategy_1 implements StrategyInterface
+class Strategy_1 extends Strategy implements StrategyInterface
 {
     //покупать если со вчера идет вверх
     //продавать если со вчера идет вниз
-    public function getAction($timeSeries, $key, $day) {
+    public function getAction($timeframes, $key, $timeframe): array {
         $action = '';
         $message = '';
 
-        $change = $this->getChangeByDays($timeSeries, $key, 1);
+        $change = $this->getChangeByDays($timeframes, $key, 1);
 
         // BUY
         if ($change > 0) {
@@ -28,16 +28,5 @@ class Strategy_1 implements StrategyInterface
             'action' => $action,
             'message' => $message,
         ];
-    }
-
-    private function getChangeByDays($timeSeries, $key, $changesByDays)
-    {
-        $change = 0;
-
-        if(isset($timeSeries[$key-$changesByDays])) {
-            $change = $timeSeries[$key]['close'] - $timeSeries[$key-$changesByDays]['close'];
-        }
-
-        return $change;
     }
 }

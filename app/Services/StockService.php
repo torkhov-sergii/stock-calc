@@ -3,20 +3,20 @@
 namespace App\Services;
 
 use App\Models\Stock;
-use App\Strategy\Strategy_1;
-use App\Strategy\Strategy_2;
-use Illuminate\Database\Eloquent\Collection;
+use App\Strategy\StrategyInterface;
 
 class StockService
 {
-    public $amount = 1000;
-    private $initialAmount;
-    private $finalAmount;
-    private $stockPortfolio = [];
+    public int $amount = 1000;
+    private StrategyInterface $strategy;
+    private int $initialAmount;
+    private int $finalAmount;
+    private array $stockPortfolio = [];
 
-    public function __construct()
+    public function __construct(StrategyInterface $strategy)
     {
         $this->initialAmount = $this->amount;
+        $this->strategy = $strategy;
     }
 
     public function getInitalAmount(): int
@@ -29,7 +29,7 @@ class StockService
         return $this->finalAmount;
     }
 
-    public function buy($price, $message): bool
+    private function buy($price, $message): bool
     {
         $deal['operation'] = 'buy';
         $deal['price'] = $price;
@@ -44,7 +44,7 @@ class StockService
         return true;
     }
 
-    public function sell($price, $message): bool
+    private function sell($price, $message): bool
     {
         $last = last($this->stockPortfolio);
 
@@ -65,55 +65,54 @@ class StockService
 
     public function stockCalc($symbol, $from, $to)
     {
-        $timeSeries = Stock::query()
+        $timeframes = Stock::query()
             ->where('symbol', $symbol)
             ->whereBetween('date', [$from, $to])
             ->orderBy('date')
             //->limit(20)
             ->get();
 
-        foreach ($timeSeries as $key => $day) {
-            if(isset($timeSeries[$key-1])) {
-                $prevDay = $timeSeries[$key-1];
+        foreach ($timeframes as $key => $timeframe) {
+            if(isset($timeframes[$key-1])) {
+                $prevDay = $timeframes[$key-1];
             }
 
             // Today's price changes
             if (isset($prevDay)) {
-                $change = $day['close'] - $prevDay['close'];
+                $change = $timeframe['close'] - $prevDay['close'];
 
-                $timeSeries[$key]['change'] = $change;
+                $timeframes[$key]['change'] = $change;
             }
 
-            $strategyClass = new Strategy_1();
-//            $strategyClass = new Strategy_2();
+            $strategyClass = $this->strategy;
 
-            $strategy = $strategyClass->getAction($timeSeries, $key, $day);
+            $strategy = $strategyClass->getAction($timeframes, $key, $timeframe);
 
             // BUY
             if ($strategy['action'] === 'buy' && $this->amount) {
-                if ($this->buy($day['close'], $strategy['message'])) {
-                    $timeSeries[$key]['stockPortfolio'] = last($this->stockPortfolio);
+                if ($this->buy($timeframe['close'], $strategy['message'])) {
+                    $timeframes[$key]['stockPortfolio'] = last($this->stockPortfolio);
                 }
             }
 
             // SELL
             if ($strategy['action'] === 'sell') {
-                if ($this->sell($day['close'], $strategy['message'])) {
-                    $timeSeries[$key]['stockPortfolio'] = last($this->stockPortfolio);
+                if ($this->sell($timeframe['close'], $strategy['message'])) {
+                    $timeframes[$key]['stockPortfolio'] = last($this->stockPortfolio);
                 }
             }
 
             if ($this->amount) {
-                $timeSeries[$key]['amount'] = $this->amount;
+                $timeframes[$key]['amount'] = $this->amount;
             } else {
-                $timeSeries[$key]['amount'] = last($this->stockPortfolio)['count'] * $day['close'];
+                $timeframes[$key]['amount'] = last($this->stockPortfolio)['count'] * $timeframe['close'];
             }
         }
 
-        $this->sell($day['close'], 'sell remain');
+        $this->sell($timeframes->last()['close'], 'sell remain');
 
         $this->finalAmount = $this->amount;
 
-        return $timeSeries;
+        return $timeframes;
     }
 }

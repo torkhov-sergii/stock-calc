@@ -8,14 +8,14 @@ class Strategy_2 implements StrategyInterface
 {
     //покупать ???
     //продавать ???
-    public function getAction($timeSeries, $key, $day) {
+    public function getAction($timeframes, $key, $timeframe) {
         $action = '';
         $message = '';
 
         $dynamic = [
-            '1' => $this->getChangeByDays($timeSeries, $key, 1) / $timeSeries[$key]['close'] * 100,
-            '7' => $this->getChangeByDays($timeSeries, $key, 7) / $timeSeries[$key]['close'] * 100,
-            '30' => $this->getChangeByDays($timeSeries, $key, 30) / $timeSeries[$key]['close'] * 100,
+            '1' => $this->getChangeByDays($timeframes, $key, 1) / $timeframes[$key]['close'] * 100,
+            '7' => $this->getChangeByDays($timeframes, $key, 7) / $timeframes[$key]['close'] * 100,
+            '30' => $this->getChangeByDays($timeframes, $key, 30) / $timeframes[$key]['close'] * 100,
         ];
 
         foreach ($dynamic as $key => $val) {
@@ -38,12 +38,12 @@ class Strategy_2 implements StrategyInterface
         ];
     }
 
-    private function getChangeByDays($timeSeries, $key, $changesByDays)
+    private function getChangeByDays($timeframes, $key, $changesByDays)
     {
         $change = 0;
 
-        if(isset($timeSeries[$key-$changesByDays])) {
-            $change = $timeSeries[$key]['close'] - $timeSeries[$key-$changesByDays]['close'];
+        if(isset($timeframes[$key-$changesByDays])) {
+            $change = $timeframes[$key]['close'] - $timeframes[$key-$changesByDays]['close'];
         }
 
         return $change;

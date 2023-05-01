@@ -2,10 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Data\ExampleStock;
 use App\Helpers\Helpers;
-use App\Helpers\StrategyService;
-use App\Helpers\TableHelper;
 use App\Models\Period;
 use App\Models\Stock;
 use App\Services\StockService;
@@ -17,9 +14,11 @@ class StockController extends Controller
     private $apikey = 'RYBN57DFVBOWIE5B';
     protected StockService $stockService;
 
-    public function __construct(StockService $stockService)
+    public function __construct()
     {
-        $this->stockService = $stockService;
+        $strategyNumber = 3;
+        $strategyClass = 'App\Strategy\Strategy_' . $strategyNumber;
+        $this->stockService = new StockService(new $strategyClass());
     }
 
     public function import(Request $request, $symbol = '')
@@ -35,15 +34,15 @@ class StockController extends Controller
 
         $data = json_decode($json, true);
 
-        $timeSeries = $data['Time Series (Daily)'];
+        $timeframes = $data['Time Series (Daily)'];
 
-        if (!$timeSeries) {
+        if (!$timeframes) {
             return abort(403, 'Symbol not found');
         }
 
         $count = 0;
 
-        foreach ($timeSeries as $date => $series) {
+        foreach ($timeframes as $date => $series) {
             $close = $series['5. adjusted close'];
 
             if ($close) {
@@ -80,7 +79,7 @@ class StockController extends Controller
             $to = $period->to;
         }
 
-        $timeSeries = $this->stockService->stockCalc($symbol, $from, $to);
+        $timeframes = $this->stockService->stockCalc($symbol, $from, $to);
 
         return view('stock.show', [
             'periodId' => $periodId,
@@ -89,7 +88,7 @@ class StockController extends Controller
             'to' => $to,
             'initialAmount' => $this->stockService->getInitalAmount(),
             'finalAmount' => $this->stockService->getFinalAmount(),
-            'timeSeries' => $timeSeries,
+            'timeSeries' => $timeframes,
         ]);
     }
 
@@ -115,10 +114,10 @@ class StockController extends Controller
 //            $from = '2014-01-01';
 //            $to = '2014-01-10';
 
-            $timeSeries = $this->stockService->stockCalc($symbol, $from, $to);
+            $timeframes = $this->stockService->stockCalc($symbol, $from, $to);
 
-            $stockPriceFrom = $timeSeries->first()['close'];
-            $stockPriceTo = $timeSeries->last()['close'];
+            $stockPriceFrom = $timeframes->first()['close'];
+            $stockPriceTo = $timeframes->last()['close'];
 
             $holdAmount = $this->stockService->getInitalAmount() / $stockPriceFrom * $stockPriceTo;
 
