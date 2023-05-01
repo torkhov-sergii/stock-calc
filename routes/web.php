@@ -20,6 +20,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('import_companies', [StockController::class, 'import_companies']);
+
 Route::group([
     'prefix' => 'stock',
 ], function () {

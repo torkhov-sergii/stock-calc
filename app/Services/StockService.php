@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Stock;
+use App\Models\TimeSeries;
 use App\Strategy\StrategyInterface;
 
 class StockService
@@ -65,7 +65,7 @@ class StockService
 
     public function stockCalc($symbol, $from, $to)
     {
-        $timeframes = Stock::query()
+        $timeframes = TimeSeries::query()
             ->where('symbol', $symbol)
             ->whereBetween('date', [$from, $to])
             ->orderBy('date')

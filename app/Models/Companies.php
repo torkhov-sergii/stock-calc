@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Stock extends Model
+class Companies extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['symbol', 'date', 'close'];
+    protected $fillable = ['symbol', 'fetch_date', 'name', 'industry', 'cap'];
 }

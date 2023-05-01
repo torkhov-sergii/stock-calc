@@ -13,11 +13,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('stocks', function (Blueprint $table) {
+        Schema::create('time_series', function (Blueprint $table) {
             $table->id();
             $table->string('symbol')->index();
             $table->date('date');
+            $table->decimal('open');
+            $table->decimal('high');
+            $table->decimal('low');
             $table->decimal('close');
+            $table->decimal('adjusted_close');
+            $table->integer('volume');
+
             $table->timestamps();
         });
     }
@@ -29,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('stocks');
+        Schema::dropIfExists('time_series');
     }
 };

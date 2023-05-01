@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Helpers;
+use App\Models\Companies;
 use App\Models\Period;
-use App\Models\Stock;
+use App\Models\TimeSeries;
 use App\Services\StockService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Rap2hpoutre\FastExcel\FastExcel;
 
 class StockController extends Controller
 {
-    private $apikey = 'RYBN57DFVBOWIE5B';
     protected StockService $stockService;
 
     public function __construct()
@@ -23,14 +24,23 @@ class StockController extends Controller
 
     public function import(Request $request, $symbol = '')
     {
+        //https://www.alphavantage.co/documentation/
+
         if (!$symbol) {
             return abort(403, 'Add symbol');
         }
 
+        if($symbol == 'auto') {
+            $company = Companies::query()
+                ->where('fetch_date', null)
+                ->first();
+
+            $symbol = $company->symbol;
+        }
+
         $outputsize = 'compact';
 //        $outputsize = 'full';
-        $json = file_get_contents('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=' . $symbol . '&apikey=' . $this->apikey . '&outputsize=' . $outputsize);
-        //$json = ExampleStock::tsla();
+        $json = file_get_contents('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=' . $symbol . '&apikey=' . env('ALPHAVANTAGE_API') . '&outputsize=' . $outputsize);
 
         $data = json_decode($json, true);
 
@@ -43,23 +53,53 @@ class StockController extends Controller
         $count = 0;
 
         foreach ($timeframes as $date => $series) {
-            $close = $series['5. adjusted close'];
+            $open = $series['1. open'];
+            $high = $series['2. high'];
+            $low = $series['3. low'];
+            $close = $series['4. close'];
+            $adjusted_close = $series['5. adjusted close'];
+            $volume = $series['6. volume'];
 
             if ($close) {
-                $stock = Stock::firstOrCreate([
+                $stock = TimeSeries::firstOrCreate([
                     'symbol' => $symbol,
                     'date' => $date,
                 ], [
                     'symbol' => $symbol,
                     'date' => $date,
+                    'open' => $open,
+                    'high' => $high,
+                    'low' => $low,
                     'close' => $close,
+                    'adjusted_close' => $adjusted_close,
+                    'volume' => $volume,
                 ]);
 
                 if ($stock->wasRecentlyCreated) $count++;
             }
         }
 
+        $company->update([
+            'fetch_date' => Carbon::now()
+        ]);
+
         return response('Added: ' . $count);
+    }
+
+    public function import_companies()
+    {
+        // https://stockanalysis.com/stocks/screener/
+
+        Companies::truncate();
+
+        $collection = (new FastExcel)->import('../data/screener-stocks-companies-small.xlsx', function ($line) {
+            return Companies::create([
+                'symbol' => $line['Symbol'],
+                'name' => $line['Company Name'],
+                'industry' => $line['Industry'],
+                'cap' => $line['Market Cap'],
+            ]);
+        });
     }
 
     public function show(Request $request, $symbol): string
@@ -95,7 +135,7 @@ class StockController extends Controller
     public function all(Request $request, $symbol)
     {
         // Начало данных с года
-        $stockDateFrom = Stock::query()
+        $stockDateFrom = TimeSeries::query()
             ->where('symbol', $symbol)
             ->orderBy('id', 'desc')
             ->first()['date'];
