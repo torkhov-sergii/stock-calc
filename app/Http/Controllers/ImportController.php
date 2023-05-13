@@ -45,7 +45,7 @@ class ImportController extends Controller
     {
         $company = Companies::query()
             ->where('fetch_date', null)
-            ->where('id', '<=', 3)
+            ->where('id', '<=', 5)
             ->first();
 
         if ($company) {

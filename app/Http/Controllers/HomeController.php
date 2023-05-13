@@ -11,7 +11,7 @@ class HomeController extends Controller
     {
         $companies = Companies::query()
             ->whereNotNull('fetch_date')
-            ->where('id', '<=', 3)
+            //->where('id', '<=', 3)
             ->get();
 
         return view('home', [

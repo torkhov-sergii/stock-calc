@@ -86,26 +86,28 @@ class StockController extends Controller
 
             $timeframes = $this->stockService->stockCalc($symbol, $from, $to);
 
-            $stockPriceFrom = $timeframes->first()['close'];
-            $stockPriceTo = $timeframes->last()['close'];
+            if (count($timeframes)) {
+                $stockPriceFrom = $timeframes->first()['close'];
+                $stockPriceTo = $timeframes->last()['close'];
 
-            $holdAmount = $this->stockService->getInitalAmount() / $stockPriceFrom * $stockPriceTo;
+                $holdAmount = $this->stockService->getInitalAmount() / $stockPriceFrom * $stockPriceTo;
 
-            $periodDays = Carbon::parse($from)->diffInDays($to);
-            $changePerYear =  ceil((100 / $this->stockService->getInitalAmount() * $holdAmount - 100) / (1 / (365 / $periodDays)));
+                $periodDays = Carbon::parse($from)->diffInDays($to);
+                $changePerYear =  ceil((100 / $this->stockService->getInitalAmount() * $holdAmount - 100) / (1 / (365 / $periodDays)));
 
-            $periodResults[] = [
-                'id' => $period->id,
-                'from' => $from,
-                'to' => $to,
-                'periodDays' => $periodDays,
-                'stockPriceFrom' => $stockPriceFrom,
-                'stockPriceTo' => $stockPriceTo,
-                'initialAmount' => $this->stockService->getInitalAmount(),
-                'changePerYear' => $changePerYear,
-                'holdAmount' => $holdAmount,
-                'finalAmount' => $this->stockService->getFinalAmount(),
-            ];
+                $periodResults[] = [
+                    'id' => $period->id,
+                    'from' => $from,
+                    'to' => $to,
+                    'periodDays' => $periodDays,
+                    'stockPriceFrom' => $stockPriceFrom,
+                    'stockPriceTo' => $stockPriceTo,
+                    'initialAmount' => $this->stockService->getInitalAmount(),
+                    'changePerYear' => $changePerYear,
+                    'holdAmount' => $holdAmount,
+                    'finalAmount' => $this->stockService->getFinalAmount(),
+                ];
+            }
         }
 
         $averageHoldAmount = Helpers::averageArrayKey($periodResults,  'holdAmount');
