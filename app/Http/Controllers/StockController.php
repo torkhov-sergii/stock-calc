@@ -17,7 +17,7 @@ class StockController extends Controller
 
     public function __construct()
     {
-        $strategyNumber = 3;
+        $strategyNumber = 2;
         $strategyClass = 'App\Strategy\Strategy_' . $strategyNumber;
         $this->stockService = new StockService(new $strategyClass());
     }
@@ -54,6 +54,8 @@ class StockController extends Controller
 
     public function all(Request $request, $symbol)
     {
+        $periodResults = [];
+
         // Начало данных с года
         $stockDateFrom = TimeSeries::query()
             ->where('symbol', $symbol)

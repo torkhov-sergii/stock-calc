@@ -22,7 +22,7 @@
 
         @foreach($periodResults as $period)
             <tr>
-                <td><a href="/stock/show/TSLA?period={{ $period['id'] }}">{{ $period['id'] }}</a></td>
+                <td><a href="/stock/show/{{ $symbol }}?period={{ $period['id'] }}">{{ $period['id'] }}</a></td>
                 <td>{{ $period['from'] }}</td>
                 <td>{{ $period['to'] }}</td>
                 <td>{{ round($period['periodDays'] / 365, 1) }}</td>

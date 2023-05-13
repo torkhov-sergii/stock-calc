@@ -109,7 +109,9 @@ class StockService
             }
         }
 
-        $this->sell($timeframes->last()['close'], 'sell remain');
+        if ($timeframes->last()) {
+            $this->sell($timeframes->last()['close'], 'sell remain');
+        }
 
         $this->finalAmount = $this->amount;
 

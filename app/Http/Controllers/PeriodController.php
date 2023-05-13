@@ -8,13 +8,13 @@ use Illuminate\Http\Request;
 
 class PeriodController extends Controller
 {
-    private $count = 10;
+    private $count = 5;
 
     public function generate()
     {
         Period::truncate();
 
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 40; $i++) {
             for ($j = 0; $j < $this->count; $j++) {
                 $min = Carbon::now()->startOfYear()->addYear(-$i);
 

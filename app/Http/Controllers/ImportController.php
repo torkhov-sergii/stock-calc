@@ -61,7 +61,7 @@ class ImportController extends Controller
         }
 
         return view('default', [
-            'message' => 'not found'
+            'message' => 'All already imported'
         ]);
     }
 
