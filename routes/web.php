@@ -22,6 +22,12 @@ use App\Http\Controllers\HomeController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::group([
+    'prefix' => 'company',
+], function () {
+    Route::get('{symbol}', [StockController::class, 'company']);
+});
+
+Route::group([
     'prefix' => 'stock',
 ], function () {
     Route::get('all/{symbol}', [StockController::class, 'all']);

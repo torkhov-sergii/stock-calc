@@ -22,6 +22,14 @@ class StockController extends Controller
         $this->stockService = new StockService(new $strategyClass());
     }
 
+    public function company(Request $request, $symbol)
+    {
+
+        return view('stock.company', [
+            'symbol' => $symbol,
+        ]);
+    }
+
     public function show(Request $request, $symbol): string
     {
         $from = $request->get('from');

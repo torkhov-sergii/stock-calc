@@ -4,20 +4,16 @@
 
 @section('content')
 
-    <h3>Periods</h3>
+    <h3>Companies</h3>
 
-    <p>
-        <a href="/stock/all/aapl">All AAPL Periods</a>
-    </p>
-
-    <p>
-        <a href="/stock/show/aapl?from=2014-01-01&to=2014-01-10">Show custom AAPL period</a>
-    </p>
+    @foreach($companies as $company)
+        <a href="/company/{{ $company->symbol }}">{{ $company->symbol }}</a>
+    @endforeach
 
     <h3>Import</h3>
 
     <p>
-        <a href="/import/import_by_symbol?symbol=aapl&output=compact">Import by symbol [output: compact,full]</a>
+        <a href="/import/import_by_symbol?symbol=AAPL&output=compact">Import by symbol [output: compact,full]</a>
     </p>
 
     <p>

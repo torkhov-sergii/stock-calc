@@ -2,12 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Companies;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        return view('home');
+        $companies = Companies::query()
+            ->whereNotNull('fetch_date')
+            ->where('id', '<=', 3)
+            ->get();
+
+        return view('home', [
+            'companies' => $companies
+        ]);
     }
 }
