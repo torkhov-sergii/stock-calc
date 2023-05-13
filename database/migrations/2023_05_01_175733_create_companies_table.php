@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->string('symbol')->index();
-            $table->date('fetch_date')->nullable();
+            $table->date('fetch_date')->index()->nullable();
             $table->string('name')->nullable();
             $table->string('industry')->nullable();
             $table->string('cap')->nullable();

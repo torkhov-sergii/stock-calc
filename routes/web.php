@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\PeriodController;
+use App\Http\Controllers\ImportController;
+use App\Http\Controllers\HomeController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -16,18 +19,22 @@ use App\Http\Controllers\PeriodController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('import_companies', [StockController::class, 'import_companies']);
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::group([
     'prefix' => 'stock',
 ], function () {
     Route::get('all/{symbol}', [StockController::class, 'all']);
     Route::get('show/{symbol}', [StockController::class, 'show']);
-    Route::get('import/{symbol?}', [StockController::class, 'import']);
+});
+
+Route::group([
+    'prefix' => 'import',
+], function () {
+    Route::get('import_companies_from_xls', [StockController::class, 'importCompaniesFromXls']);
+    Route::get('import_by_symbol', [ImportController::class, 'importBySymbol']);
+    Route::get('import_from_companies', [ImportController::class, 'importCompanies']);
+    Route::get('update_from_companies', [ImportController::class, 'updateCompanies']);
 });
 
 Route::group([

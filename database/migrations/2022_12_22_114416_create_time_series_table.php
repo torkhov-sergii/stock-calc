@@ -16,13 +16,14 @@ return new class extends Migration
         Schema::create('time_series', function (Blueprint $table) {
             $table->id();
             $table->string('symbol')->index();
-            $table->date('date');
+            $table->date('date')->index();
             $table->decimal('open');
             $table->decimal('high');
             $table->decimal('low');
             $table->decimal('close');
             $table->decimal('adjusted_close');
-            $table->integer('volume');
+            $table->unsignedBigInteger('volume');
+            $table->integer('split_coefficient')->nullable();
 
             $table->timestamps();
         });
