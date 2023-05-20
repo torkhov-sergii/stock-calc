@@ -14,12 +14,18 @@ use Rap2hpoutre\FastExcel\FastExcel;
 class StockController extends Controller
 {
     protected StockService $stockService;
+    private string $strategyDescription;
+    private int $strategyNumber;
 
     public function __construct()
     {
-        $strategyNumber = 2;
-        $strategyClass = 'App\Strategy\Strategy_' . $strategyNumber;
-        $this->stockService = new StockService(new $strategyClass());
+        $this->strategyNumber = 4;
+
+        $strategyClassPath = 'App\Strategy\Strategy_' . $this->strategyNumber;
+        $strategyClass = new $strategyClassPath();
+
+        $this->stockService = new StockService($strategyClass);
+        $this->strategyDescription = $strategyClass->strategyDescription;
     }
 
     public function company(Request $request, $symbol)
@@ -50,6 +56,8 @@ class StockController extends Controller
         $timeframes = $this->stockService->stockCalc($symbol, $from, $to);
 
         return view('stock.show', [
+            'strategyDescription' => $this->strategyDescription,
+            'strategyNumber' => $this->strategyNumber,
             'periodId' => $periodId,
             'symbol' => $symbol,
             'from' => $from,
@@ -77,7 +85,8 @@ class StockController extends Controller
             ->get();
 
         foreach ($periods as $period) {
-            $this->stockService->amount = 1000;
+//            $this->stockService->amount = 1000;
+//            $this->stockService->stockPortfolio->amount = 1000;
             $from = $period['from'];
             $to = $period['to'];
 

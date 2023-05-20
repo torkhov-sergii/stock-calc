@@ -5,8 +5,8 @@
 @section('content')
 
     <h3>Detailed <a href="/stock/all/{{ $symbol }}">{{ $symbol }}</a> by Period: ({{ $periodId }}) {{ $from }} - {{ $to }}</h3>
-{{--    <h3>Initial amount: {{ $initialAmount }}</h3>--}}
-    <h3>Result: {{ ceil($finalAmount) }}</h3>
+    <h3>Strategy: {{ $strategyNumber }}: {{ $strategyDescription }}</h3>
+    <h3>FinalAmount: {{ ceil($finalAmount) }}</h3>
 
     <table>
         <tr>
@@ -15,7 +15,11 @@
             <th>Close</th>
             <th>Change</th>
             <th>Buy / Sell</th>
-            <th>Amount</th>
+            <th>Price</th>
+            <th>Count</th>
+            <th>Message</th>
+            <th>currentAmount</th>
+            <th>totalAmount</th>
         </tr>
 
         @foreach($timeSeries as $day)
@@ -25,12 +29,17 @@
                 <td>{{ $day['close'] }}</td>
                 <td class="{{ ($day['change'] > 0) ? 'green' : 'red' }}">{{ $day['change'] }}</td>
                 <td>
-                    @if($day['stockPortfolio'])
-                        {{ $day['stockPortfolio']['operation'] .' '. $day['stockPortfolio']['price']  }}
-                    {!! $day['stockPortfolio']['message'] !!}
-                    @endif
+                    {{ $day->stockPortfolio->operation ?? null  }}
                 </td>
-                <td>{{ ceil($day['amount']) }}</td>
+                <td>
+                    {{ $day->stockPortfolio->price ?? null  }}
+                </td>
+                <td>
+                    {{ $day->stockPortfolio->count ?? null  }}
+                </td>
+                <td>{!! $day->stockPortfolio->message ?? null !!}</td>
+                <td>{{ ceil($day->stockPortfolio->currentAmount ?? 0) }}</td>
+                <td>{{ ceil($day->stockPortfolio->totalAmount ?? 0) }}</td>
             </tr>
         @endforeach
     </table>

@@ -9,58 +9,49 @@ class StockService
 {
     public int $amount = 1000;
     private StrategyInterface $strategy;
-    private int $initialAmount;
-    private int $finalAmount;
-    private array $stockPortfolio = [];
+    private float $initialAmount;
+    private float $finalAmount;
+    private object|null $stockPortfolio;
 
     public function __construct(StrategyInterface $strategy)
     {
         $this->initialAmount = $this->amount;
         $this->strategy = $strategy;
+
+        $this->stockPortfolio = new \stdClass();
+        $this->stockPortfolio->currentAmount = $this->amount;
+        $this->stockPortfolio->totalAmount = $this->amount;
+        $this->stockPortfolio->count = 0;
     }
 
-    public function getInitalAmount(): int
+    public function getInitalAmount(): float
     {
         return $this->initialAmount;
     }
 
-    public function getFinalAmount(): int
+    public function getFinalAmount(): float
     {
         return $this->finalAmount;
     }
 
-    private function buy($price, $message): bool
+    private function buy(float $price)
     {
-        $deal['operation'] = 'buy';
-        $deal['price'] = $price;
-        $deal['count'] = $this->amount / $price;
-        $deal['message'] = $message;
-        $this->stockPortfolio[] = $deal;
+        $count = $this->stockPortfolio->currentAmount / $price;
 
-        $this->amount = round($this->amount - $deal['count'] * $deal['price']);
-
-        //dump([$deal, $this->amount]);
-
-        return true;
+        $this->stockPortfolio->operation = 'buy';
+        $this->stockPortfolio->price = $price;
+        $this->stockPortfolio->count = $count;
+        $this->stockPortfolio->currentAmount = 0;
     }
 
-    private function sell($price, $message): bool
+    private function sell(float $price)
     {
-        $last = last($this->stockPortfolio);
+        $amount = $this->stockPortfolio->count * $price;
 
-        if(isset($last['operation']) && $last['operation'] == 'buy') {
-            $this->amount = abs(last($this->stockPortfolio)['count']) * $price;
-
-            $deal['operation'] = 'sell';
-            $deal['price'] = $price;
-            $deal['count'] = last($this->stockPortfolio)['count'];
-            $deal['message'] = $message;
-            $this->stockPortfolio[] = $deal;
-
-            return true;
-        }
-
-        return false;
+        $this->stockPortfolio->operation = 'sell';
+        $this->stockPortfolio->price = $price;
+        $this->stockPortfolio->count = 0;
+        $this->stockPortfolio->currentAmount = $amount;
     }
 
     public function stockCalc($symbol, $from, $to)
@@ -73,47 +64,48 @@ class StockService
             ->get();
 
         foreach ($timeframes as $key => $timeframe) {
-            if(isset($timeframes[$key-1])) {
-                $prevDay = $timeframes[$key-1];
-            }
-
             // Today's price changes
-            if (isset($prevDay)) {
-                $change = $timeframe['close'] - $prevDay['close'];
-
-                $timeframes[$key]['change'] = $change;
-            }
+            $timeframes[$key]->change = isset($timeframes[$key - 1]['close']) ? $timeframe['close'] - $timeframes[$key - 1]['close'] : null;
 
             $strategyClass = $this->strategy;
 
             $strategy = $strategyClass->getAction($timeframes, $key, $timeframe);
 
+            $this->stockPortfolio->message = $strategy['message'];
+
             // BUY
-            if ($strategy['action'] === 'buy' && $this->amount) {
-                if ($this->buy($timeframe['close'], $strategy['message'])) {
-                    $timeframes[$key]['stockPortfolio'] = last($this->stockPortfolio);
-                }
-            }
+            if ($strategy['action'] === 'buy' && $this->stockPortfolio->currentAmount) {
+                $this->buy($timeframe['close']);
 
+                $tempStockPortfolio = clone $this->stockPortfolio;
+            }
             // SELL
-            if ($strategy['action'] === 'sell') {
-                if ($this->sell($timeframe['close'], $strategy['message'])) {
-                    $timeframes[$key]['stockPortfolio'] = last($this->stockPortfolio);
-                }
+            elseif ($strategy['action'] === 'sell' && $this->stockPortfolio->count) {
+                $this->sell($timeframe['close']);
+
+                $tempStockPortfolio = clone $this->stockPortfolio;
+            } else {
+                $tempStockPortfolio = clone $this->stockPortfolio;
+
+                $tempStockPortfolio->operation = '';
+                $tempStockPortfolio->price = null;
+                $tempStockPortfolio->count = null;
             }
 
-            if ($this->amount) {
-                $timeframes[$key]['amount'] = $this->amount;
+            if ($tempStockPortfolio->currentAmount) {
+                $tempStockPortfolio->totalAmount = $this->stockPortfolio->totalAmount = $tempStockPortfolio->currentAmount;
             } else {
-                $timeframes[$key]['amount'] = last($this->stockPortfolio)['count'] * $timeframe['close'];
+                $tempStockPortfolio->totalAmount = $this->stockPortfolio->totalAmount = $this->stockPortfolio->count * $timeframe['close'];
             }
+
+            $timeframes[$key]->stockPortfolio = $tempStockPortfolio;
         }
 
         if ($timeframes->last()) {
-            $this->sell($timeframes->last()['close'], 'sell remain');
+            $this->sell($timeframes->last()['close']);
         }
 
-        $this->finalAmount = $this->amount;
+        $this->finalAmount = $this->stockPortfolio->totalAmount;
 
         return $timeframes;
     }

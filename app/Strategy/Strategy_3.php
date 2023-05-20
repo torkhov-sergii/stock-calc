@@ -8,16 +8,11 @@ use Illuminate\Database\Eloquent\Collection;
 
 class Strategy_3 extends Strategy implements StrategyInterface
 {
-    /*
-    private StrategyService $strategyService;
-
-    public function __construct(StrategyService $strategyService)
+    public function __construct()
     {
-        $this->strategyService = $strategyService;
+        $this->strategyDescription = 'посчитать возможный макс (если быть провидцем)';
     }
-    */
 
-    // посчитать возможный макс (если быть провидцем)
     public function getAction($timeframes, $key, $timeframe) {
         $action = '';
         $message = '';

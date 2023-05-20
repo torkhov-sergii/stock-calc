@@ -6,13 +6,16 @@ use Illuminate\Database\Eloquent\Collection;
 
 class Strategy_1 extends Strategy implements StrategyInterface
 {
-    //покупать если со вчера идет вверх
-    //продавать если со вчера идет вниз
+    public function __construct()
+    {
+        $this->strategyDescription = 'покупать если со вчера идет вверх, продавать если со вчера идет вниз';
+    }
+
     public function getAction($timeframes, $key, $timeframe): array {
         $action = '';
         $message = '';
 
-        $change = $this->getChangeByDays($timeframes, $key, 1);
+        $change = $this->getChangeByDays($timeframes, $key, -1);
 
         // BUY
         if ($change > 0) {
