@@ -90,6 +90,8 @@ class StockController extends Controller
             $from = $period['from'];
             $to = $period['to'];
 
+            $this->stockService->init();
+
 //            $from = '2014-01-01';
 //            $to = '2014-01-10';
 

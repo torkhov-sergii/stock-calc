@@ -18,10 +18,16 @@ class StockService
         $this->initialAmount = $this->amount;
         $this->strategy = $strategy;
 
+        $this->init();
+    }
+
+    public function init()
+    {
         $this->stockPortfolio = new \stdClass();
         $this->stockPortfolio->currentAmount = $this->amount;
         $this->stockPortfolio->totalAmount = $this->amount;
-        $this->stockPortfolio->count = 0;
+        $this->stockPortfolio->count = null;
+        $this->stockPortfolio->price = null;
     }
 
     public function getInitalAmount(): float
@@ -69,7 +75,7 @@ class StockService
 
             $strategyClass = $this->strategy;
 
-            $strategy = $strategyClass->getAction($timeframes, $key, $timeframe);
+            $strategy = $strategyClass->getAction($timeframes, $key, $timeframe, $this->stockPortfolio);
 
             $this->stockPortfolio->message = $strategy['message'];
 
