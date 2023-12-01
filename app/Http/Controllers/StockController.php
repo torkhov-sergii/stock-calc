@@ -30,13 +30,14 @@ class StockController extends Controller
 
     public function company(Request $request, $symbol)
     {
+        
 
         return view('stock.company', [
             'symbol' => $symbol,
         ]);
     }
 
-    public function show(Request $request, $symbol): string
+    public function show(Request $request, $symbol) 
     {
         $from = $request->get('from');
         $to = $request->get('to');
@@ -85,15 +86,15 @@ class StockController extends Controller
             ->get();
 
         foreach ($periods as $period) {
-//            $this->stockService->amount = 1000;
-//            $this->stockService->stockPortfolio->amount = 1000;
+            // $this->stockService->amount = 1000;
+            // $this->stockService->stockPortfolio->amount = 1000;
             $from = $period['from'];
             $to = $period['to'];
 
             $this->stockService->init();
 
-//            $from = '2014-01-01';
-//            $to = '2014-01-10';
+            // $from = '2014-01-01';
+            // $to = '2014-01-10';
 
             $timeframes = $this->stockService->stockCalc($symbol, $from, $to);
 
