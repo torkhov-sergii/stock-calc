@@ -6,8 +6,6 @@ $(() => {
         company: 'aapl'
     }
 
-    //123456
-
     $.ajax({
         type: 'post',
         url: '/api/graph/aapl',
