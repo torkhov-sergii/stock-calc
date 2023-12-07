@@ -6,7 +6,7 @@ $(() => {
         company: 'aapl'
     }
 
-    //1
+    //12
 
     $.ajax({
         type: 'post',
