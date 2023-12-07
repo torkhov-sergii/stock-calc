@@ -6,7 +6,7 @@ $(() => {
         company: 'aapl'
     }
 
-    //12345
+    //123456
 
     $.ajax({
         type: 'post',
