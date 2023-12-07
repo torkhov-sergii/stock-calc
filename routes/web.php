@@ -48,5 +48,3 @@ Route::group([
 ], function () {
     Route::get('generate', [PeriodController::class, 'generate']);
 });
-
-//test vscode

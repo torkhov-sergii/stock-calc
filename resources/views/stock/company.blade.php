@@ -14,4 +14,6 @@
         <a href="/stock/show/{{ $symbol }}?from=2014-01-01&to=2014-01-10">Show custom period</a>
     </p>
 
+    <div id="graph"></div>
+
 @endsection

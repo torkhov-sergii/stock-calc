@@ -5,7 +5,7 @@ mix.webpackConfig({module: {rules: [{test: /\.scss$/, loader: 'import-glob-loade
 
 // JS
 mix.js('resources/js/app.js', 'public/assets/js').autoload({
-    jquery: ['$', 'window.jQuery', 'jQuery']
+    //jquery: ['$', 'window.jQuery', 'jQuery']
 })
 
     // SASS
