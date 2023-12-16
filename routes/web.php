@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CompanyController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\StockController;
@@ -24,7 +25,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::group([
     'prefix' => 'company',
 ], function () {
-    Route::get('{symbol}', [StockController::class, 'company']);
+    Route::get('{symbol}', [CompanyController::class, 'company']);
 });
 
 Route::group([
@@ -37,7 +38,7 @@ Route::group([
 Route::group([
     'prefix' => 'import',
 ], function () {
-    Route::get('import_companies_from_xls', [StockController::class, 'importCompaniesFromXls']);
+    Route::get('import_companies_from_xls', [ImportController::class, 'importCompaniesFromXls']);
     Route::get('import_by_symbol', [ImportController::class, 'importBySymbol']);
     Route::get('import_from_companies', [ImportController::class, 'importCompanies']);
     Route::get('update_from_companies', [ImportController::class, 'updateCompanies']);

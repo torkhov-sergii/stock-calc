@@ -22,5 +22,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group([
     'prefix' => 'graph',
 ], function () {
-    Route::post('{symbol}', [GraphController::class, 'getCompanyGraph']);
+    Route::any('{symbol}', [GraphController::class, 'getCompanyGraph']);
 });

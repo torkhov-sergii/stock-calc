@@ -14,6 +14,10 @@
         <a href="/stock/show/{{ $symbol }}?from=2014-01-01&to=2014-01-10">Show custom period</a>
     </p>
 
+    <p>
+        Interday Value Change Sum: {{ $interdayValueChangeSum }}
+    </p>
+
     <div id="companyGraph" data-symbol="{{ $symbol }}"></div>
 
 @endsection

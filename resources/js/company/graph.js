@@ -28,8 +28,8 @@ $(() => {
                     },
                     { 
                         //x: response.x,
-                        y: response.yExpnentiaMovingAverage,
-                        name: 'exp',
+                        y: response.yEMA,
+                        name: 'EMA',
                     },
                 ],
                 "layout": { 
