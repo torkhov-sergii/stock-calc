@@ -25,7 +25,7 @@ class GraphService
         return $EMA;
     }
 
-    public function getInterdayValueChangeSum($graphData): float
+    public function getInterdayValueChangeSum(array $graphData): float
     {
         $interdayValueChange = $this->getInterdayValueChange($graphData);
 
@@ -34,7 +34,7 @@ class GraphService
         return $interdayValueChangeSum;
     }
 
-    public function getInterdayValueChange($graphData): array
+    public function getInterdayValueChange(array $graphData): array
     {
         $interdayValueChange = [];
 
@@ -47,7 +47,7 @@ class GraphService
         return $interdayValueChange;
     }
 
-    public function getGraphData($symbol): array
+    public function getGraphData(string $symbol): array
     {
         $x = [];
         $y = [];
@@ -73,5 +73,15 @@ class GraphService
             'x' => $x,
             'y' => $y,
         ];
+    }
+
+    public function getExpectedValue(array $graphData): int
+    {
+        $fromValue = $graphData['y'][0];
+        $toValue = $graphData['y'][count($graphData['y']) - 1];
+
+        $expectedValue = $toValue + ($toValue - $fromValue);
+
+        return $expectedValue;
     }
 }

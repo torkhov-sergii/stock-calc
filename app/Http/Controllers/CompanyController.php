@@ -16,11 +16,13 @@ class CompanyController extends Controller
         $graphData = $this->graphService->getGraphData($symbol);
         $getInterdayValueChange = $this->graphService->getInterdayValueChange($graphData);
         $getInterdayValueChangeSum = $this->graphService->getInterdayValueChangeSum($graphData);
+        $getExpectedValue = $this->graphService->getExpectedValue($graphData);
 
         return view('stock.company', [
             'symbol' => $symbol,
             'interdayValueChange' => $getInterdayValueChange, 
             'interdayValueChangeSum' => $getInterdayValueChangeSum, 
+            'expectedValue' => $getExpectedValue,
         ]);
     }
 }

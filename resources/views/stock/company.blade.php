@@ -18,6 +18,10 @@
         Interday Value Change Sum: {{ $interdayValueChangeSum }}
     </p>
 
+    <p>
+        Expected Value: {{ $expectedValue }}
+    </p>
+
     <div id="companyGraph" data-symbol="{{ $symbol }}"></div>
 
 @endsection
