@@ -24,6 +24,6 @@ class GraphController extends Controller
             'x' => $graphData['x'],
             'y' => $graphData['y'],
             'yEMA' => $EMA,
-        ]); 
+        ]);
     }
 }
