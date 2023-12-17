@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Companies;
 use App\Models\TimeSeries;
 use MathPHP\Statistics\Average;
 
@@ -51,9 +52,12 @@ class GraphService
         $x = [];
         $y = [];
 
+        $from = Companies::GRAPH_DATE_RANGE['from'];
+        $to = Companies::GRAPH_DATE_RANGE['to'];
+
         $timeframes = TimeSeries::query()
             ->where('symbol', $symbol)
-            //->whereBetween('date', [$from, $to])
+            ->whereBetween('date', [$from, $to])
             ->orderBy('date')
             //->limit(200)
             ->get();
