@@ -13,8 +13,9 @@ class CompanyController extends Controller
 
     public function company(Request $request, $symbol)
     {
-        $getInterdayValueChange = $this->graphService->getInterdayValueChange($symbol);
-        $getInterdayValueChangeSum = $this->graphService->getInterdayValueChangeSum($symbol);
+        $graphData = $this->graphService->getGraphData($symbol);
+        $getInterdayValueChange = $this->graphService->getInterdayValueChange($graphData);
+        $getInterdayValueChangeSum = $this->graphService->getInterdayValueChangeSum($graphData);
 
         return view('stock.company', [
             'symbol' => $symbol,

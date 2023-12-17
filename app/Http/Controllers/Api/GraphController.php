@@ -17,8 +17,8 @@ class GraphController extends Controller
 
     public function getCompanyGraph(Request $request, $symbol)
     {
-        $EMA = $this->graphService->getEMA($symbol);
         $graphData = $this->graphService->getGraphData($symbol);
+        $EMA = $this->graphService->getEMA($graphData);
 
         return response()->json([
             'x' => $graphData['x'],

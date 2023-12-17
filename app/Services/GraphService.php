@@ -13,11 +13,9 @@ class GraphService
     {
     }
 
-    public function getEMA($symbol): array
+    public function getEMA($graphData): array
     {
-        $y = $this->getGraphData($symbol)['y'];
-
-        $EMA = Average::exponentialMovingAverage($y, $this->EMAperiod);
+        $EMA = Average::exponentialMovingAverage($graphData['y'], $this->EMAperiod);
         //$y2 = Average::simpleMovingAverage($y, 5);
         //$y4 = Average::cumulativeMovingAverage($y, 5);
 
@@ -26,33 +24,23 @@ class GraphService
         return $EMA;
     }
 
-    public function getInterdayValueChangeSum($symbol): float
+    public function getInterdayValueChangeSum($graphData): float
     {
-        $interdayValueChange = [];
-
-        $y = $this->getGraphData($symbol)['y'];
-
-        $EMA = $this->getEMA($symbol);
-
-        foreach ($EMA as $key => $value) {
-            $interdayValueChange[] = abs($y[$key] - $value);
-        }
+        $interdayValueChange = $this->getInterdayValueChange($graphData);
 
         $interdayValueChangeSum = array_sum($interdayValueChange);
 
         return $interdayValueChangeSum;
     }
 
-    public function getInterdayValueChange($symbol): array
+    public function getInterdayValueChange($graphData): array
     {
         $interdayValueChange = [];
 
-        $y = $this->getGraphData($symbol)['y'];
-
-        $EMA = $this->getEMA($symbol);
+        $EMA = $this->getEMA($graphData);
 
         foreach ($EMA as $key => $value) {
-            $interdayValueChange[] = abs($y[$key] - $value);
+            $interdayValueChange[] = abs($graphData['y'][$key] - $value);
         }
 
         return $interdayValueChange;
