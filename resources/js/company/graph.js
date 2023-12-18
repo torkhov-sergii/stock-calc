@@ -17,19 +17,35 @@ $(() => {
         complete: function () {
         },
         success: function (response) {
+            console.log(response.graphData);
+
+            let graphData = response.graphData;
+
             Plotly.newPlot("companyGraph", /* JSON object */ {
                 "data": [
                     { 
-                        //x: response.x,
-                        y: response.y,
-                        // mode: "lines",
-                        // type: "scatter"
-                        name: 'aapl',
+                        x: response.graphData.x,
+                        y: response.graphData.y,
+                        mode: "lines",
+                        name: 'value',
                     },
                     { 
-                        //x: response.x,
-                        y: response.yEMA,
+                        x: response.ema.x,
+                        y: response.ema.y,
+                        mode: "lines",
                         name: 'EMA',
+                    },
+                    { 
+                        x: response.crossings.x,
+                        y: response.crossings.y,
+                        mode: "markers",
+                        name: 'crossings',
+                    },
+                    { 
+                        x: response.maxDeviation.x,
+                        y: response.maxDeviation.y,
+                        mode: "markers",
+                        name: 'Max deviation',
                     },
                 ],
                 "layout": { 
